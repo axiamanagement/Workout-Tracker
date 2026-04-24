@@ -15,10 +15,6 @@
     --accent2: #ff4d00;
     --text: #f0f0f0;
     --muted: #666;
-    --chest: #ff4d00;
-    --back: #00c2ff;
-    --shoulders: #a855f7;
-    --legs: #22c55e;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -44,6 +40,7 @@
     align-items: center;
     justify-content: space-between;
     height: 60px;
+    gap: 12px;
   }
 
   .logo {
@@ -52,6 +49,7 @@
     letter-spacing: 0.1em;
     color: var(--accent);
     line-height: 1;
+    flex-shrink: 0;
   }
   .logo span { color: var(--text); }
 
@@ -60,6 +58,7 @@
     gap: 6px;
     overflow-x: auto;
     scrollbar-width: none;
+    flex: 1;
   }
   .day-pills::-webkit-scrollbar { display: none; }
 
@@ -78,19 +77,56 @@
     flex-shrink: 0;
   }
   .day-pill:hover { border-color: var(--accent); color: var(--accent); }
-  .day-pill.active {
-    background: var(--accent);
-    color: #000;
-    border-color: var(--accent);
+  .day-pill.active { background: var(--accent); color: #000; border-color: var(--accent); }
+
+  .edit-mode-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
+  .edit-mode-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .edit-mode-btn.active { border-color: var(--accent); color: #000; background: var(--accent); }
+
+  /* TAB NAV */
+  .tab-nav {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2rem;
+  }
+  .tab-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.15s;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
 
   /* MAIN */
   main { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem 6rem; }
 
-  .day-header {
-    margin-bottom: 2rem;
-    animation: fadeUp 0.3s ease;
-  }
+  .day-header { margin-bottom: 2rem; animation: fadeUp 0.3s ease; }
 
   .day-number {
     font-family: 'DM Mono', monospace;
@@ -111,17 +147,12 @@
     gap: 0.3em;
     flex-wrap: wrap;
   }
-
   .day-title .muscle-a { color: var(--accent); }
   .day-title .sep { color: var(--muted); font-size: 0.6em; }
   .day-title .muscle-b { color: var(--text); }
 
   /* EXERCISE CARDS */
-  .exercises-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
+  .exercises-grid { display: flex; flex-direction: column; gap: 1rem; }
 
   .exercise-card {
     background: var(--surface);
@@ -132,25 +163,61 @@
     animation: fadeUp 0.3s ease both;
   }
   .exercise-card:hover { border-color: #3a3a3a; }
+  .exercise-card.drag-over { border-color: var(--accent) !important; background: #161606; }
+  .exercise-card.dragging { opacity: 0.35; }
 
   .exercise-card-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     padding: 0.875rem 1rem;
-    cursor: pointer;
-    user-select: none;
-    gap: 1rem;
+    gap: 0.6rem;
   }
+
+  /* DRAG HANDLE — only visible in edit mode */
+  .drag-handle {
+    color: var(--muted);
+    font-size: 1.1rem;
+    cursor: grab;
+    flex-shrink: 0;
+    display: none;
+    user-select: none;
+    letter-spacing: -2px;
+    padding: 0 2px;
+  }
+  .drag-handle:active { cursor: grabbing; }
+  body.edit-mode .drag-handle { display: block; }
+
+  /* Exercise name — toggles between span and input */
+  .exercise-name-wrap { flex: 1; min-width: 0; }
 
   .exercise-name {
     font-size: 1.2rem;
     font-weight: 700;
     letter-spacing: 0.05em;
     text-transform: uppercase;
-    flex: 1;
+    cursor: pointer;
+    display: block;
   }
+  body.edit-mode .exercise-name { display: none; }
 
+  .exercise-name-input {
+    background: transparent;
+    border: none;
+    border-bottom: 1.5px solid var(--accent);
+    color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    width: 100%;
+    outline: none;
+    padding: 0 0 2px;
+    display: none;
+  }
+  body.edit-mode .exercise-name-input { display: block; }
+
+  /* TAG — clickable to toggle in edit mode */
   .exercise-tag {
     font-family: 'DM Mono', monospace;
     font-size: 0.65rem;
@@ -159,17 +226,42 @@
     letter-spacing: 0.1em;
     text-transform: uppercase;
     flex-shrink: 0;
+    border: 1px solid;
+    transition: opacity 0.15s, transform 0.1s;
   }
-  .tag-primary { background: rgba(232,255,59,0.12); color: var(--accent); border: 1px solid rgba(232,255,59,0.3); }
-  .tag-secondary { background: rgba(255,77,0,0.1); color: var(--accent2); border: 1px solid rgba(255,77,0,0.3); }
+  .tag-primary { background: rgba(232,255,59,0.12); color: var(--accent); border-color: rgba(232,255,59,0.3); }
+  .tag-secondary { background: rgba(255,77,0,0.1); color: var(--accent2); border-color: rgba(255,77,0,0.3); }
+  body.edit-mode .exercise-tag { cursor: pointer; }
+  body.edit-mode .exercise-tag:hover { opacity: 0.75; transform: scale(0.97); }
+
+  /* Delete exercise button — only in edit mode */
+  .btn-del-exercise {
+    display: none;
+    background: transparent;
+    border: 1px solid rgba(255,77,77,0.3);
+    color: #ff6666;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    padding: 4px 9px;
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.15s;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .btn-del-exercise:hover { background: rgba(255,77,77,0.12); }
+  body.edit-mode .btn-del-exercise { display: inline-flex; }
 
   .exercise-chevron {
     color: var(--muted);
     font-size: 1rem;
     transition: transform 0.2s;
     flex-shrink: 0;
+    cursor: pointer;
   }
   .exercise-card.open .exercise-chevron { transform: rotate(180deg); }
+  body.edit-mode .exercise-chevron { display: none; }
 
   .exercise-body {
     display: none;
@@ -179,12 +271,7 @@
   .exercise-card.open .exercise-body { display: block; }
 
   /* SETS TABLE */
-  .sets-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 0.75rem;
-  }
-
+  .sets-table { width: 100%; border-collapse: collapse; margin-top: 0.75rem; }
   .sets-table th {
     font-family: 'DM Mono', monospace;
     font-size: 0.65rem;
@@ -195,22 +282,15 @@
     padding: 0 0.5rem 0.5rem;
   }
   .sets-table th:first-child { padding-left: 0; width: 48px; }
-
-  .set-row td {
-    padding: 4px 0.5rem;
-    vertical-align: middle;
-  }
+  .set-row td { padding: 4px 0.5rem; vertical-align: middle; }
   .set-row td:first-child { padding-left: 0; }
 
   .set-num {
     font-family: 'DM Mono', monospace;
     font-size: 0.85rem;
     color: var(--muted);
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
     border: 1px solid var(--border);
     border-radius: 2px;
   }
@@ -233,17 +313,14 @@
   .set-input:focus { outline: none; border-color: var(--accent); background: #1e1e1e; }
 
   .set-complete-btn {
-    width: 32px;
-    height: 32px;
+    width: 32px; height: 32px;
     border-radius: 2px;
     border: 1.5px solid var(--border);
     background: transparent;
     color: var(--muted);
     cursor: pointer;
     font-size: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     transition: all 0.15s;
     flex-shrink: 0;
   }
@@ -253,286 +330,150 @@
   .set-row.completed .set-complete-btn { opacity: 1; }
 
   .set-del-btn {
-    background: transparent;
-    border: none;
-    color: var(--muted);
-    cursor: pointer;
-    font-size: 1rem;
-    padding: 4px 6px;
-    border-radius: 2px;
-    transition: color 0.15s;
+    background: transparent; border: none; color: var(--muted);
+    cursor: pointer; font-size: 1rem; padding: 4px 6px; border-radius: 2px; transition: color 0.15s;
   }
   .set-del-btn:hover { color: #ff4d4d; }
 
   .card-actions {
-    display: flex;
-    gap: 8px;
-    margin-top: 0.75rem;
-    padding-top: 0.75rem;
+    display: flex; gap: 8px; margin-top: 0.75rem; padding-top: 0.75rem;
     border-top: 1px solid var(--border);
   }
 
   .btn-add-set {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.85rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 6px 16px;
-    border: 1.5px solid var(--border);
-    background: transparent;
-    color: var(--muted);
-    border-radius: 2px;
-    cursor: pointer;
-    transition: all 0.15s;
+    font-size: 0.85rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 6px 16px; border: 1.5px solid var(--border); background: transparent;
+    color: var(--muted); border-radius: 2px; cursor: pointer; transition: all 0.15s;
   }
   .btn-add-set:hover { border-color: var(--accent); color: var(--accent); }
 
   .btn-timer {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.85rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 6px 16px;
-    border: 1.5px solid var(--border);
-    background: transparent;
-    color: var(--muted);
-    border-radius: 2px;
-    cursor: pointer;
-    transition: all 0.15s;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    font-size: 0.85rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    padding: 6px 16px; border: 1.5px solid var(--border); background: transparent;
+    color: var(--muted); border-radius: 2px; cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; gap: 6px;
   }
   .btn-timer:hover { border-color: #00c2ff; color: #00c2ff; }
 
   /* ADD EXERCISE */
-  .add-exercise-bar {
-    display: flex;
-    gap: 8px;
-    margin-top: 1.5rem;
-    animation: fadeUp 0.3s ease both;
-  }
-
+  .add-exercise-bar { display: flex; gap: 8px; margin-top: 1.5rem; animation: fadeUp 0.3s ease both; }
   .add-exercise-input {
     flex: 1;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--text);
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 1rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    padding: 10px 14px;
-    border-radius: 3px;
+    background: var(--surface); border: 1px solid var(--border); color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 600;
+    letter-spacing: 0.05em; text-transform: uppercase; padding: 10px 14px; border-radius: 3px;
     transition: border-color 0.15s;
   }
   .add-exercise-input::placeholder { color: var(--muted); font-weight: 400; text-transform: none; }
   .add-exercise-input:focus { outline: none; border-color: var(--accent); }
 
   .btn-add-exercise {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.1rem;
-    letter-spacing: 0.1em;
-    padding: 10px 20px;
-    background: var(--accent);
-    color: #000;
-    border: none;
-    border-radius: 3px;
-    cursor: pointer;
-    transition: opacity 0.15s;
-    white-space: nowrap;
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 0.1em;
+    padding: 10px 20px; background: var(--accent); color: #000; border: none;
+    border-radius: 3px; cursor: pointer; transition: opacity 0.15s; white-space: nowrap;
   }
   .btn-add-exercise:hover { opacity: 0.85; }
 
   /* TIMER MODAL */
   .timer-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.85);
-    z-index: 200;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(4px);
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+    z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(4px);
   }
   .timer-overlay.show { display: flex; }
-
   .timer-modal {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 2.5rem 2rem;
-    width: min(380px, 90vw);
-    text-align: center;
-    animation: popIn 0.2s ease;
-    position: relative;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+    padding: 2.5rem 2rem; width: min(380px, 90vw); text-align: center;
+    animation: popIn 0.2s ease; position: relative;
   }
-
-  .timer-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.7rem;
-    color: var(--muted);
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    margin-bottom: 1rem;
-  }
-
-  .timer-display {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 5rem;
-    letter-spacing: 0.05em;
-    line-height: 1;
-    color: var(--accent);
-    margin-bottom: 1.5rem;
-    position: relative;
-  }
-
-  .timer-ring {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 160px;
-    height: 160px;
-    pointer-events: none;
-    opacity: 0.3;
-  }
-
-  .timer-presets {
-    display: flex;
-    gap: 6px;
-    justify-content: center;
-    margin-bottom: 1.5rem;
-  }
-
+  .timer-label { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--muted); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 1rem; }
+  .timer-display { font-family: 'Bebas Neue', sans-serif; font-size: 5rem; letter-spacing: 0.05em; line-height: 1; color: var(--accent); margin-bottom: 1.5rem; }
+  .timer-presets { display: flex; gap: 6px; justify-content: center; margin-bottom: 1.5rem; }
   .preset-btn {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.8rem;
-    padding: 5px 12px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--muted);
-    border-radius: 2px;
-    cursor: pointer;
-    transition: all 0.15s;
+    font-family: 'DM Mono', monospace; font-size: 0.8rem; padding: 5px 12px;
+    border: 1px solid var(--border); background: transparent; color: var(--muted);
+    border-radius: 2px; cursor: pointer; transition: all 0.15s;
   }
   .preset-btn:hover, .preset-btn.active { border-color: var(--accent); color: var(--accent); }
-
-  .custom-time-row {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 1.5rem;
-  }
-
+  .custom-time-row { display: flex; gap: 8px; justify-content: center; align-items: center; margin-bottom: 1.5rem; }
   .custom-time-input {
-    width: 70px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--text);
-    font-family: 'DM Mono', monospace;
-    font-size: 1.1rem;
-    text-align: center;
-    padding: 6px;
-    border-radius: 3px;
+    width: 70px; background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+    font-family: 'DM Mono', monospace; font-size: 1.1rem; text-align: center; padding: 6px; border-radius: 3px;
   }
   .custom-time-input:focus { outline: none; border-color: var(--accent); }
   .custom-time-input::-webkit-inner-spin-button { -webkit-appearance: none; }
-
-  .custom-time-sep {
-    font-family: 'DM Mono', monospace;
-    font-size: 1.2rem;
-    color: var(--muted);
-  }
-
-  .timer-controls {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-  }
-
-  .timer-btn {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.1rem;
-    letter-spacing: 0.1em;
-    padding: 10px 28px;
-    border-radius: 3px;
-    cursor: pointer;
-    transition: all 0.15s;
-    border: none;
-  }
+  .custom-time-sep { font-family: 'DM Mono', monospace; font-size: 1.2rem; color: var(--muted); }
+  .timer-controls { display: flex; gap: 8px; justify-content: center; }
+  .timer-btn { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 0.1em; padding: 10px 28px; border-radius: 3px; cursor: pointer; transition: all 0.15s; border: none; }
   .timer-start { background: var(--accent); color: #000; }
   .timer-start:hover { opacity: 0.85; }
-  .timer-pause { background: var(--surface2); border: 1px solid var(--border); color: var(--text); }
-  .timer-pause:hover { border-color: var(--accent); }
   .timer-reset { background: transparent; border: 1px solid var(--border); color: var(--muted); }
   .timer-reset:hover { border-color: #ff4d4d; color: #ff4d4d; }
-  .timer-close {
-    position: absolute;
-    top: 12px;
-    right: 14px;
-    background: transparent;
-    border: none;
-    color: var(--muted);
-    font-size: 1.3rem;
-    cursor: pointer;
-    line-height: 1;
-    padding: 4px;
-  }
+  .timer-close { position: absolute; top: 12px; right: 14px; background: transparent; border: none; color: var(--muted); font-size: 1.3rem; cursor: pointer; padding: 4px; }
   .timer-close:hover { color: var(--text); }
 
   /* PROGRESS BAR */
-  .day-progress {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 2rem;
-    animation: fadeUp 0.3s ease both;
+  .day-progress { display: flex; align-items: center; gap: 12px; margin-bottom: 2rem; animation: fadeUp 0.3s ease both; }
+  .progress-bar-track { flex: 1; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width 0.4s ease; width: 0%; }
+  .progress-label { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--muted); letter-spacing: 0.1em; white-space: nowrap; }
+
+  /* ── RENAME DAYS TAB ─────────────────────────────────────── */
+  .rename-day-row {
+    display: flex; align-items: flex-start; gap: 1rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--border); border-radius: 4px;
+    background: var(--surface); margin-bottom: 0.75rem;
+    animation: fadeUp 0.25s ease both;
   }
-  .progress-bar-track {
-    flex: 1;
-    height: 3px;
-    background: var(--border);
-    border-radius: 2px;
-    overflow: hidden;
+  .rename-day-index { font-family: 'DM Mono', monospace; font-size: 0.7rem; color: var(--muted); letter-spacing: 0.15em; width: 44px; flex-shrink: 0; padding-top: 8px; }
+  .rename-day-fields { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .rename-field-group { display: flex; align-items: center; gap: 10px; }
+  .rename-field-label { font-family: 'DM Mono', monospace; font-size: 0.63rem; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; width: 44px; flex-shrink: 0; }
+  .rename-input {
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+    font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 600;
+    letter-spacing: 0.05em; text-transform: uppercase; padding: 5px 10px; border-radius: 3px;
+    flex: 1; transition: border-color 0.15s;
   }
-  .progress-bar-fill {
-    height: 100%;
-    background: var(--accent);
-    border-radius: 2px;
-    transition: width 0.4s ease;
-    width: 0%;
+  .rename-input:focus { outline: none; border-color: var(--accent); }
+  .rename-input::placeholder { color: var(--muted); text-transform: none; font-weight: 400; }
+  .rename-input-pill { width: 80px; flex: none; text-align: center; }
+
+  .rename-muscles-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; flex: 1; }
+  .muscle-chip {
+    font-family: 'DM Mono', monospace; font-size: 0.67rem;
+    padding: 3px 8px; border-radius: 2px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text);
+    display: inline-flex; align-items: center; gap: 5px;
   }
-  .progress-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 0.7rem;
-    color: var(--muted);
-    letter-spacing: 0.1em;
-    white-space: nowrap;
+  .muscle-chip-del { background: transparent; border: none; color: var(--muted); cursor: pointer; font-size: 0.7rem; line-height: 1; padding: 0; transition: color 0.1s; }
+  .muscle-chip-del:hover { color: #ff4d4d; }
+  .muscle-chip-add {
+    font-family: 'DM Mono', monospace; font-size: 0.67rem; padding: 3px 8px;
+    border-radius: 2px; border: 1px dashed var(--border); background: transparent;
+    color: var(--muted); cursor: pointer; transition: all 0.15s;
   }
+  .muscle-chip-add:hover { border-color: var(--accent); color: var(--accent); }
+  .muscle-add-input {
+    background: var(--surface2); border: 1px solid var(--accent); color: var(--text);
+    font-family: 'DM Mono', monospace; font-size: 0.67rem; padding: 3px 8px; border-radius: 2px;
+    width: 110px; outline: none;
+  }
+  .rename-note { font-family: 'DM Mono', monospace; font-size: 0.63rem; color: var(--muted); letter-spacing: 0.1em; text-align: center; margin-top: 1.5rem; opacity: 0.55; }
 
   /* ANIMATIONS */
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes popIn {
-    from { opacity: 0; transform: scale(0.92); }
-    to { opacity: 1; transform: scale(1); }
-  }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes popIn { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: scale(1); } }
 
-  /* MOBILE TWEAKS */
   @media (max-width: 600px) {
     header { padding: 0 1rem; }
     main { padding: 1.5rem 1rem 6rem; }
     .day-pills { gap: 4px; }
     .day-pill { font-size: 0.85rem; padding: 3px 10px; }
     .set-input { width: 72px; }
-    .sets-table th, .sets-table td { font-size: 0.8rem; }
+    .rename-day-row { flex-direction: column; }
   }
 </style>
 </head>
@@ -541,24 +482,36 @@
 <header>
   <div class="logo">BRO<span>SPLIT</span></div>
   <div class="day-pills" id="dayPills"></div>
+  <button class="edit-mode-btn" id="editModeBtn" onclick="toggleEditMode()">✎ Edit</button>
 </header>
 
 <main>
-  <div class="day-header" id="dayHeader">
-    <div class="day-number" id="dayNumber"></div>
-    <div class="day-title" id="dayTitle"></div>
+  <div class="tab-nav">
+    <button class="tab-btn active" id="tabWorkout" onclick="switchTab('workout')">Workout</button>
+    <button class="tab-btn" id="tabRename" onclick="switchTab('rename')">Rename Days</button>
   </div>
 
-  <div class="day-progress">
-    <div class="progress-bar-track"><div class="progress-bar-fill" id="progressFill"></div></div>
-    <div class="progress-label" id="progressLabel">0 / 0 sets</div>
+  <!-- WORKOUT TAB -->
+  <div class="tab-panel active" id="panelWorkout">
+    <div class="day-header">
+      <div class="day-number" id="dayNumber"></div>
+      <div class="day-title" id="dayTitle"></div>
+    </div>
+    <div class="day-progress">
+      <div class="progress-bar-track"><div class="progress-bar-fill" id="progressFill"></div></div>
+      <div class="progress-label" id="progressLabel">0 / 0 sets</div>
+    </div>
+    <div class="exercises-grid" id="exercisesGrid"></div>
+    <div class="add-exercise-bar">
+      <input class="add-exercise-input" id="addExInput" placeholder="Add exercise..." />
+      <button class="btn-add-exercise" onclick="addExercise()">+ Add</button>
+    </div>
   </div>
 
-  <div class="exercises-grid" id="exercisesGrid"></div>
-
-  <div class="add-exercise-bar">
-    <input class="add-exercise-input" id="addExInput" placeholder="Add exercise..." />
-    <button class="btn-add-exercise" onclick="addExercise()">+ Add</button>
+  <!-- RENAME DAYS TAB -->
+  <div class="tab-panel" id="panelRename">
+    <div id="renameDaysPanel"></div>
+    <p class="rename-note">Changes apply instantly · Saved automatically</p>
   </div>
 </main>
 
@@ -589,33 +542,24 @@
 
 <script>
 // ─── DATA ───────────────────────────────────────────────────────────────────
-
 const DAYS = [
-  {
-    key: 'mon', label: 'MON', name: 'Monday',
-    muscles: ['Chest', 'Biceps'],
+  { key: 'mon', label: 'MON', name: 'Monday', muscles: ['Chest', 'Biceps'],
     exercises: [
       { name: 'Barbell Bench Press', tag: 'primary', sets: [{w:'',r:'',done:false},{w:'',r:'',done:false},{w:'',r:'',done:false},{w:'',r:'',done:false}] },
       { name: 'Incline Dumbbell Press', tag: 'primary', sets: [{w:'',r:'',done:false},{w:'',r:'',done:false},{w:'',r:'',done:false}] },
       { name: 'Cable Fly', tag: 'secondary', sets: [{w:'',r:'',done:false},{w:'',r:'',done:false},{w:'',r:'',done:false}] },
       { name: 'Barbell Curl', tag: 'secondary', sets: [{w:'',r:'',done:false},{w:'',r:'',done:false},{w:'',r:'',done:false}] },
       { name: 'Hammer Curl', tag: 'secondary', sets: [{w:'',r:'',done:false},{w:'',r:'',done:false},{w:'',r:'',done:false}] },
-    ]
-  },
-  {
-    key: 'tue', label: 'TUE', name: 'Tuesday',
-    muscles: ['Back', 'Triceps'],
+    ]},
+  { key: 'tue', label: 'TUE', name: 'Tuesday', muscles: ['Back', 'Triceps'],
     exercises: [
       { name: 'Deadlift', tag: 'primary', sets: [{w:'',r:'',done:false},{w:'',r:'',done:false},{w:'',r:'',done:false},{w:'',r:'',done:false}] },
       { name: 'Pull-Ups', tag: 'primary', sets: [{w:'',r:'',done:false},{w:'',r:'',done:false},{w:'',r:'',done:false}] },
       { name: 'Seated Cable Row', tag: 'secondary', sets: [{w:'',r:'',done:false},{w:'',r:'',done:false},{w:'',r:'',done:false}] },
       { name: 'Skull Crushers', tag: 'secondary', sets: [{w:'',r:'',done:false},{w:'',r:'',done:false},{w:'',r:'',done:false}] },
       { name: 'Tricep Pushdown', tag: 'secondary', sets: [{w:'',r:'',done:false},{w:'',r:'',done:false},{w:'',r:'',done:false}] },
-    ]
-  },
-  {
-    key: 'wed', label: 'WED', name: 'Wednesday',
-    muscles: ['Shoulders', 'Traps & Arms'],
+    ]},
+  { key: 'wed', label: 'WED', name: 'Wednesday', muscles: ['Shoulders', 'Traps & Arms'],
     exercises: [
       { name: 'Overhead Press', tag: 'primary', sets: [{w:'',r:'',done:false},{w:'',r:'',done:false},{w:'',r:'',done:false},{w:'',r:'',done:false}] },
       { name: 'Lateral Raise', tag: 'secondary', sets: [{w:'',r:'',done:false},{w:'',r:'',done:false},{w:'',r:'',done:false}] },
@@ -623,11 +567,8 @@ const DAYS = [
       { name: 'Face Pull', tag: 'secondary', sets: [{w:'',r:'',done:false},{w:'',r:'',done:false},{w:'',r:'',done:false}] },
       { name: 'Dumbbell Curl', tag: 'secondary', sets: [{w:'',r:'',done:false},{w:'',r:'',done:false},{w:'',r:'',done:false}] },
       { name: 'Overhead Tricep Extension', tag: 'secondary', sets: [{w:'',r:'',done:false},{w:'',r:'',done:false},{w:'',r:'',done:false}] },
-    ]
-  },
-  {
-    key: 'thu', label: 'THU', name: 'Thursday',
-    muscles: ['Legs', 'Lower Back'],
+    ]},
+  { key: 'thu', label: 'THU', name: 'Thursday', muscles: ['Legs', 'Lower Back'],
     exercises: [
       { name: 'Back Squat', tag: 'primary', sets: [{w:'',r:'',done:false},{w:'',r:'',done:false},{w:'',r:'',done:false},{w:'',r:'',done:false}] },
       { name: 'Romanian Deadlift', tag: 'primary', sets: [{w:'',r:'',done:false},{w:'',r:'',done:false},{w:'',r:'',done:false}] },
@@ -635,116 +576,106 @@ const DAYS = [
       { name: 'Leg Curl', tag: 'secondary', sets: [{w:'',r:'',done:false},{w:'',r:'',done:false},{w:'',r:'',done:false}] },
       { name: 'Standing Calf Raise', tag: 'secondary', sets: [{w:'',r:'',done:false},{w:'',r:'',done:false},{w:'',r:'',done:false}] },
       { name: 'Hyperextension', tag: 'secondary', sets: [{w:'',r:'',done:false},{w:'',r:'',done:false},{w:'',r:'',done:false}] },
-    ]
-  },
-  {
-    key: 'fri', label: 'FRI', name: 'Friday',
-    muscles: ['Chest', 'Biceps'],
+    ]},
+  { key: 'fri', label: 'FRI', name: 'Friday', muscles: ['Chest', 'Biceps'],
     exercises: [
       { name: 'Dumbbell Bench Press', tag: 'primary', sets: [{w:'',r:'',done:false},{w:'',r:'',done:false},{w:'',r:'',done:false},{w:'',r:'',done:false}] },
       { name: 'Chest Dip', tag: 'primary', sets: [{w:'',r:'',done:false},{w:'',r:'',done:false},{w:'',r:'',done:false}] },
       { name: 'Pec Deck', tag: 'secondary', sets: [{w:'',r:'',done:false},{w:'',r:'',done:false},{w:'',r:'',done:false}] },
       { name: 'Incline Curl', tag: 'secondary', sets: [{w:'',r:'',done:false},{w:'',r:'',done:false},{w:'',r:'',done:false}] },
       { name: 'Cable Curl', tag: 'secondary', sets: [{w:'',r:'',done:false},{w:'',r:'',done:false},{w:'',r:'',done:false}] },
-    ]
-  },
+    ]},
 ];
 
-// load from localStorage
+// ─── PERSISTENCE ─────────────────────────────────────────────────────────────
 function loadState() {
   try {
-    const saved = JSON.parse(localStorage.getItem('brosplit_v2') || '{}');
-    DAYS.forEach(d => {
-      if (saved[d.key]) {
-        d.exercises = saved[d.key];
+    const saved = JSON.parse(localStorage.getItem('brosplit_v3') || '{}');
+    if (saved.exercises) DAYS.forEach(d => { if (saved.exercises[d.key]) d.exercises = saved.exercises[d.key]; });
+    if (saved.dayMeta) DAYS.forEach(d => {
+      if (saved.dayMeta[d.key]) {
+        const m = saved.dayMeta[d.key];
+        if (m.label)   d.label   = m.label;
+        if (m.name)    d.name    = m.name;
+        if (m.muscles) d.muscles = m.muscles;
       }
     });
   } catch(e) {}
 }
 
 function saveState() {
-  const out = {};
-  DAYS.forEach(d => { out[d.key] = d.exercises; });
-  localStorage.setItem('brosplit_v2', JSON.stringify(out));
+  const out = { exercises: {}, dayMeta: {} };
+  DAYS.forEach(d => {
+    out.exercises[d.key] = d.exercises;
+    out.dayMeta[d.key] = { label: d.label, name: d.name, muscles: d.muscles };
+  });
+  localStorage.setItem('brosplit_v3', JSON.stringify(out));
 }
 
-// ─── STATE ──────────────────────────────────────────────────────────────────
+// ─── APP STATE ───────────────────────────────────────────────────────────────
 let currentDay = 0;
+let editMode   = false;
 
-// ─── TIMER ──────────────────────────────────────────────────────────────────
-let timerDuration = 90;
-let timerRemaining = 90;
-let timerInterval = null;
-let timerRunning = false;
-let beepCtx = null;
-
-function getAudioCtx() {
-  if (!beepCtx) beepCtx = new (window.AudioContext || window.webkitAudioContext)();
-  return beepCtx;
+// ─── EDIT MODE ───────────────────────────────────────────────────────────────
+function toggleEditMode() {
+  editMode = !editMode;
+  document.body.classList.toggle('edit-mode', editMode);
+  const btn = document.getElementById('editModeBtn');
+  btn.classList.toggle('active', editMode);
+  btn.textContent = editMode ? '✓ Done' : '✎ Edit';
+  if (editMode) DAYS[currentDay].exercises.forEach(ex => ex.open = true);
+  renderExercises();
 }
 
+// ─── TABS ────────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  ['workout','rename'].forEach(t => {
+    document.getElementById('panel' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
+    document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
+  });
+  if (tab === 'rename') renderRenameDays();
+}
+
+// ─── TIMER ───────────────────────────────────────────────────────────────────
+let timerDuration = 90, timerRemaining = 90, timerInterval = null, timerRunning = false, beepCtx = null;
+function getAudioCtx() { if (!beepCtx) beepCtx = new (window.AudioContext || window.webkitAudioContext)(); return beepCtx; }
 function beep() {
   try {
-    const ctx = getAudioCtx();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
+    const ctx = getAudioCtx(), osc = ctx.createOscillator(), gain = ctx.createGain();
     osc.connect(gain); gain.connect(ctx.destination);
     osc.frequency.value = 880;
     gain.gain.setValueAtTime(0.4, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
-    osc.start(ctx.currentTime);
-    osc.stop(ctx.currentTime + 0.4);
+    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.4);
   } catch(e) {}
 }
-
-function openTimer() {
-  document.getElementById('timerOverlay').classList.add('show');
-  updateTimerDisplay();
-}
-function closeTimer() {
-  document.getElementById('timerOverlay').classList.remove('show');
-}
-
+function openTimer() { document.getElementById('timerOverlay').classList.add('show'); updateTimerDisplay(); }
+function closeTimer() { document.getElementById('timerOverlay').classList.remove('show'); }
 function setPreset(secs) {
-  clearInterval(timerInterval);
-  timerRunning = false;
-  timerDuration = secs;
-  timerRemaining = secs;
+  clearInterval(timerInterval); timerRunning = false;
+  timerDuration = timerRemaining = secs;
   document.getElementById('timerStartBtn').textContent = 'START';
   document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
   event.target.classList.add('active');
   updateTimerDisplay();
 }
-
 function setCustomTime() {
-  const m = parseInt(document.getElementById('customMin').value) || 0;
-  const s = parseInt(document.getElementById('customSec').value) || 0;
-  const total = m * 60 + s;
+  const total = (parseInt(document.getElementById('customMin').value)||0)*60 + (parseInt(document.getElementById('customSec').value)||0);
   if (total < 1) return;
-  clearInterval(timerInterval);
-  timerRunning = false;
-  timerDuration = total;
-  timerRemaining = total;
+  clearInterval(timerInterval); timerRunning = false; timerDuration = timerRemaining = total;
   document.getElementById('timerStartBtn').textContent = 'START';
   document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
   updateTimerDisplay();
 }
-
 function toggleTimer() {
-  if (timerRunning) {
-    clearInterval(timerInterval);
-    timerRunning = false;
-    document.getElementById('timerStartBtn').textContent = 'RESUME';
-  } else {
-    if (timerRemaining <= 0) { timerRemaining = timerDuration; }
-    timerRunning = true;
-    document.getElementById('timerStartBtn').textContent = 'PAUSE';
+  if (timerRunning) { clearInterval(timerInterval); timerRunning = false; document.getElementById('timerStartBtn').textContent = 'RESUME'; }
+  else {
+    if (timerRemaining <= 0) timerRemaining = timerDuration;
+    timerRunning = true; document.getElementById('timerStartBtn').textContent = 'PAUSE';
     timerInterval = setInterval(() => {
-      timerRemaining--;
-      updateTimerDisplay();
+      timerRemaining--; updateTimerDisplay();
       if (timerRemaining <= 0) {
-        clearInterval(timerInterval);
-        timerRunning = false;
+        clearInterval(timerInterval); timerRunning = false;
         document.getElementById('timerStartBtn').textContent = 'START';
         beep();
         document.getElementById('timerDisplay').style.color = '#ff4d00';
@@ -753,113 +684,104 @@ function toggleTimer() {
     }, 1000);
   }
 }
-
 function resetTimer() {
-  clearInterval(timerInterval);
-  timerRunning = false;
-  timerRemaining = timerDuration;
-  document.getElementById('timerStartBtn').textContent = 'START';
-  updateTimerDisplay();
+  clearInterval(timerInterval); timerRunning = false; timerRemaining = timerDuration;
+  document.getElementById('timerStartBtn').textContent = 'START'; updateTimerDisplay();
 }
-
 function updateTimerDisplay() {
-  const m = Math.floor(timerRemaining / 60);
-  const s = timerRemaining % 60;
-  document.getElementById('timerDisplay').textContent =
-    String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  const m = Math.floor(timerRemaining/60), s = timerRemaining%60;
+  document.getElementById('timerDisplay').textContent = String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
 }
 
-// ─── RENDER ─────────────────────────────────────────────────────────────────
-
+// ─── RENDER ──────────────────────────────────────────────────────────────────
 function renderDayPills() {
-  const container = document.getElementById('dayPills');
-  container.innerHTML = '';
-  DAYS.forEach((d, i) => {
+  const c = document.getElementById('dayPills'); c.innerHTML = '';
+  DAYS.forEach((d,i) => {
     const btn = document.createElement('button');
-    btn.className = 'day-pill' + (i === currentDay ? ' active' : '');
+    btn.className = 'day-pill' + (i===currentDay?' active':'');
     btn.textContent = d.label;
     btn.onclick = () => { currentDay = i; render(); };
-    container.appendChild(btn);
+    c.appendChild(btn);
   });
 }
 
 function renderHeader() {
-  const day = DAYS[currentDay];
-  document.getElementById('dayNumber').textContent = day.name.toUpperCase() + ' · DAY ' + (currentDay + 1) + ' OF 5';
-  const title = document.getElementById('dayTitle');
-  title.innerHTML = day.muscles.map((m, i) =>
-    `<span class="${i===0?'muscle-a':'muscle-b'}">${m}</span>${i < day.muscles.length-1 ? '<span class="sep">&</span>' : ''}`
+  const d = DAYS[currentDay];
+  document.getElementById('dayNumber').textContent = d.name.toUpperCase() + ' · DAY ' + (currentDay+1) + ' OF 5';
+  document.getElementById('dayTitle').innerHTML = d.muscles.map((m,i) =>
+    `<span class="${i===0?'muscle-a':'muscle-b'}">${m}</span>${i<d.muscles.length-1?'<span class="sep">&</span>':''}`
   ).join('');
 }
 
 function renderProgress() {
-  const day = DAYS[currentDay];
-  let total = 0, done = 0;
-  day.exercises.forEach(ex => {
-    ex.sets.forEach(s => { total++; if(s.done) done++; });
-  });
-  const pct = total ? Math.round((done/total)*100) : 0;
-  document.getElementById('progressFill').style.width = pct + '%';
-  document.getElementById('progressLabel').textContent = done + ' / ' + total + ' sets';
+  const d = DAYS[currentDay]; let total=0, done=0;
+  d.exercises.forEach(ex => ex.sets.forEach(s => { total++; if(s.done) done++; }));
+  const pct = total ? Math.round(done/total*100) : 0;
+  document.getElementById('progressFill').style.width = pct+'%';
+  document.getElementById('progressLabel').textContent = done+' / '+total+' sets';
 }
 
 function renderExercises() {
   const grid = document.getElementById('exercisesGrid');
-  const day = DAYS[currentDay];
+  const day  = DAYS[currentDay];
   grid.innerHTML = '';
   day.exercises.forEach((ex, ei) => {
     const card = document.createElement('div');
-    card.className = 'exercise-card' + (ex.open ? ' open' : '');
-    card.style.animationDelay = (ei * 0.05) + 's';
+    card.className = 'exercise-card' + (ex.open?' open':'');
+    card.style.animationDelay = (ei*0.05)+'s';
+    card.dataset.ei = ei;
+    card.draggable = true;
+    card.addEventListener('dragstart', onDragStart);
+    card.addEventListener('dragover',  onDragOver);
+    card.addEventListener('dragleave', onDragLeave);
+    card.addEventListener('drop',      onDrop);
+    card.addEventListener('dragend',   onDragEnd);
 
     card.innerHTML = `
-      <div class="exercise-card-header" onclick="toggleCard(${ei})">
-        <div class="exercise-name">${ex.name}</div>
-        <span class="exercise-tag ${ex.tag === 'primary' ? 'tag-primary' : 'tag-secondary'}">${ex.tag}</span>
-        <span class="exercise-chevron">▾</span>
+      <div class="exercise-card-header">
+        <span class="drag-handle" title="Drag to reorder">⠿⠿</span>
+        <div class="exercise-name-wrap">
+          <span class="exercise-name" onclick="if(!editMode)toggleCard(${ei})">${ex.name}</span>
+          <input class="exercise-name-input" value="${ex.name}"
+            oninput="renameExercise(${ei},this.value)"
+            onclick="event.stopPropagation()"
+            placeholder="Exercise name…" />
+        </div>
+        <span class="exercise-tag ${ex.tag==='primary'?'tag-primary':'tag-secondary'}"
+              onclick="toggleTag(${ei})"
+              title="${editMode?'Click to toggle primary/secondary':ex.tag}">${ex.tag}</span>
+        <button class="btn-del-exercise" onclick="deleteExercise(${ei})">✕ Remove</button>
+        <span class="exercise-chevron" onclick="toggleCard(${ei})">▾</span>
       </div>
       <div class="exercise-body">
         <table class="sets-table">
-          <thead>
-            <tr>
-              <th>SET</th>
-              <th>WEIGHT (lbs)</th>
-              <th>REPS</th>
-              <th>✓</th>
-              <th></th>
-            </tr>
-          </thead>
+          <thead><tr><th>SET</th><th>WEIGHT (lbs)</th><th>REPS</th><th>✓</th><th></th></tr></thead>
           <tbody id="sets-${ei}"></tbody>
         </table>
         <div class="card-actions">
           <button class="btn-add-set" onclick="addSet(${ei})">+ Set</button>
           <button class="btn-timer" onclick="openTimer()">⏱ Rest Timer</button>
         </div>
-      </div>
-    `;
+      </div>`;
     grid.appendChild(card);
     renderSets(ei);
   });
 }
 
 function renderSets(ei) {
-  const day = DAYS[currentDay];
-  const ex = day.exercises[ei];
-  const tbody = document.getElementById('sets-' + ei);
+  const ex = DAYS[currentDay].exercises[ei];
+  const tbody = document.getElementById('sets-'+ei);
   if (!tbody) return;
   tbody.innerHTML = '';
-  ex.sets.forEach((set, si) => {
+  ex.sets.forEach((set,si) => {
     const tr = document.createElement('tr');
-    tr.className = 'set-row' + (set.done ? ' completed' : '');
+    tr.className = 'set-row'+(set.done?' completed':'');
     tr.innerHTML = `
       <td><div class="set-num">${si+1}</div></td>
-      <td><input class="set-input" type="number" min="0" placeholder="0" value="${set.w}"
-        oninput="updateSet(${ei},${si},'w',this.value)" /></td>
-      <td><input class="set-input" type="number" min="0" placeholder="0" value="${set.r}"
-        oninput="updateSet(${ei},${si},'r',this.value)" /></td>
+      <td><input class="set-input" type="number" min="0" placeholder="0" value="${set.w}" oninput="updateSet(${ei},${si},'w',this.value)" /></td>
+      <td><input class="set-input" type="number" min="0" placeholder="0" value="${set.r}" oninput="updateSet(${ei},${si},'r',this.value)" /></td>
       <td><button class="set-complete-btn ${set.done?'done':''}" onclick="toggleSetDone(${ei},${si})">${set.done?'✓':'○'}</button></td>
-      <td><button class="set-del-btn" onclick="deleteSet(${ei},${si})" title="Remove set">✕</button></td>
-    `;
+      <td><button class="set-del-btn" onclick="deleteSet(${ei},${si})">✕</button></td>`;
     tbody.appendChild(tr);
   });
 }
@@ -871,87 +793,183 @@ function render() {
   renderExercises();
 }
 
-// ─── ACTIONS ────────────────────────────────────────────────────────────────
+// ─── RENAME DAYS ─────────────────────────────────────────────────────────────
+function renderRenameDays() {
+  const panel = document.getElementById('renameDaysPanel');
+  panel.innerHTML = '';
+  DAYS.forEach((d,di) => {
+    const row = document.createElement('div');
+    row.className = 'rename-day-row';
+    row.style.animationDelay = (di*0.05)+'s';
+    row.innerHTML = `
+      <div class="rename-day-index">DAY ${di+1}</div>
+      <div class="rename-day-fields">
+        <div class="rename-field-group">
+          <span class="rename-field-label">Label</span>
+          <input class="rename-input rename-input-pill" maxlength="6" value="${d.label}" placeholder="MON"
+            oninput="updateDayLabel(${di},this.value)" />
+        </div>
+        <div class="rename-field-group">
+          <span class="rename-field-label">Name</span>
+          <input class="rename-input" value="${d.name}" placeholder="Monday"
+            oninput="updateDayName(${di},this.value)" />
+        </div>
+        <div class="rename-field-group" style="align-items:flex-start;margin-top:2px;">
+          <span class="rename-field-label" style="padding-top:5px;">Focus</span>
+          <div class="rename-muscles-row" id="muscles-${di}"></div>
+        </div>
+      </div>`;
+    panel.appendChild(row);
+    renderMuscleChips(di);
+  });
+}
 
+function renderMuscleChips(di) {
+  const d = DAYS[di], c = document.getElementById('muscles-'+di);
+  if (!c) return;
+  c.innerHTML = '';
+  d.muscles.forEach((m,mi) => {
+    const chip = document.createElement('span');
+    chip.className = 'muscle-chip';
+    chip.innerHTML = `${m}<button class="muscle-chip-del" onclick="removeMuscle(${di},${mi})">✕</button>`;
+    c.appendChild(chip);
+  });
+  const add = document.createElement('button');
+  add.className = 'muscle-chip-add'; add.textContent = '+ Add';
+  add.onclick = () => showMuscleInput(di);
+  c.appendChild(add);
+}
+
+function showMuscleInput(di) {
+  const c = document.getElementById('muscles-'+di);
+  const ex = c.querySelector('.muscle-add-input');
+  if (ex) { ex.focus(); return; }
+  const inp = document.createElement('input');
+  inp.className = 'muscle-add-input'; inp.placeholder = 'e.g. Quads'; inp.maxLength = 20;
+  inp.addEventListener('keydown', e => {
+    if (e.key==='Enter') addMuscle(di, inp.value);
+    if (e.key==='Escape') renderMuscleChips(di);
+  });
+  inp.addEventListener('blur', () => { if(inp.value.trim()) addMuscle(di,inp.value); else renderMuscleChips(di); });
+  c.insertBefore(inp, c.querySelector('.muscle-chip-add'));
+  inp.focus();
+}
+
+function addMuscle(di, val) {
+  const name = val.trim(); if (!name) { renderMuscleChips(di); return; }
+  DAYS[di].muscles.push(name); saveState(); renderMuscleChips(di);
+  if (di===currentDay) renderHeader();
+}
+function removeMuscle(di, mi) {
+  if (DAYS[di].muscles.length <= 1) return;
+  DAYS[di].muscles.splice(mi,1); saveState(); renderMuscleChips(di);
+  if (di===currentDay) renderHeader();
+}
+function updateDayLabel(di, val) { DAYS[di].label = val.toUpperCase(); saveState(); renderDayPills(); }
+function updateDayName(di, val)  { DAYS[di].name  = val; saveState(); if (di===currentDay) renderHeader(); }
+
+// ─── ACTIONS ─────────────────────────────────────────────────────────────────
 function toggleCard(ei) {
-  const day = DAYS[currentDay];
-  day.exercises[ei].open = !day.exercises[ei].open;
+  DAYS[currentDay].exercises[ei].open = !DAYS[currentDay].exercises[ei].open;
   renderExercises();
 }
 
-function updateSet(ei, si, field, val) {
-  DAYS[currentDay].exercises[ei].sets[si][field] = val;
+function renameExercise(ei, val) {
+  DAYS[currentDay].exercises[ei].name = val;
   saveState();
 }
 
-function toggleSetDone(ei, si) {
-  const set = DAYS[currentDay].exercises[ei].sets[si];
-  set.done = !set.done;
+function toggleTag(ei) {
+  if (!editMode) return;
+  const ex = DAYS[currentDay].exercises[ei];
+  ex.tag = ex.tag === 'primary' ? 'secondary' : 'primary';
   saveState();
-  renderSets(ei);
-  renderProgress();
-  // re-apply completed class on the card
+  const cards = document.querySelectorAll('.exercise-card');
+  const tag = cards[ei] && cards[ei].querySelector('.exercise-tag');
+  if (tag) { tag.className = 'exercise-tag '+(ex.tag==='primary'?'tag-primary':'tag-secondary'); tag.textContent = ex.tag; }
+}
+
+function deleteExercise(ei) {
+  const exes = DAYS[currentDay].exercises;
+  if (exes.length <= 1) return;
+  exes.splice(ei,1); saveState(); renderExercises(); renderProgress();
+}
+
+function updateSet(ei,si,field,val) { DAYS[currentDay].exercises[ei].sets[si][field]=val; saveState(); }
+
+function toggleSetDone(ei,si) {
+  const set = DAYS[currentDay].exercises[ei].sets[si];
+  set.done = !set.done; saveState(); renderSets(ei); renderProgress();
   const card = document.querySelectorAll('.exercise-card')[ei];
-  if(card) {
+  if (card) {
     const rows = card.querySelectorAll('.set-row');
-    rows[si].classList.toggle('completed', set.done);
-    rows[si].querySelector('.set-complete-btn').classList.toggle('done', set.done);
-    rows[si].querySelector('.set-complete-btn').textContent = set.done ? '✓' : '○';
+    if (rows[si]) {
+      rows[si].classList.toggle('completed', set.done);
+      const btn = rows[si].querySelector('.set-complete-btn');
+      if (btn) { btn.classList.toggle('done', set.done); btn.textContent = set.done?'✓':'○'; }
+    }
   }
 }
 
 function addSet(ei) {
-  DAYS[currentDay].exercises[ei].sets.push({ w: '', r: '', done: false });
-  saveState();
-  renderSets(ei);
-  renderProgress();
+  DAYS[currentDay].exercises[ei].sets.push({w:'',r:'',done:false});
+  saveState(); renderSets(ei); renderProgress();
 }
 
-function deleteSet(ei, si) {
+function deleteSet(ei,si) {
   const sets = DAYS[currentDay].exercises[ei].sets;
-  if (sets.length <= 1) return;
-  sets.splice(si, 1);
-  saveState();
-  renderSets(ei);
-  renderProgress();
+  if (sets.length<=1) return;
+  sets.splice(si,1); saveState(); renderSets(ei); renderProgress();
 }
 
 function addExercise() {
   const input = document.getElementById('addExInput');
-  const name = input.value.trim();
-  if (!name) return;
-  DAYS[currentDay].exercises.push({
-    name,
-    tag: 'secondary',
-    open: true,
-    sets: [{ w: '', r: '', done: false }, { w: '', r: '', done: false }, { w: '', r: '', done: false }]
-  });
-  input.value = '';
-  saveState();
-  renderExercises();
-  renderProgress();
+  const name = input.value.trim(); if (!name) return;
+  DAYS[currentDay].exercises.push({ name, tag:'secondary', open:true,
+    sets:[{w:'',r:'',done:false},{w:'',r:'',done:false},{w:'',r:'',done:false}] });
+  input.value = ''; saveState(); renderExercises(); renderProgress();
 }
 
-document.getElementById('addExInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') addExercise();
-});
+document.getElementById('addExInput').addEventListener('keydown', e => { if(e.key==='Enter') addExercise(); });
+document.getElementById('timerOverlay').addEventListener('click', function(e) { if(e.target===this) closeTimer(); });
 
-// close overlay on bg click
-document.getElementById('timerOverlay').addEventListener('click', function(e) {
-  if (e.target === this) closeTimer();
-});
+// ─── DRAG & DROP ─────────────────────────────────────────────────────────────
+let dragSrcIndex = null;
+
+function onDragStart(e) {
+  if (!editMode) { e.preventDefault(); return; }
+  dragSrcIndex = parseInt(this.dataset.ei);
+  this.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+function onDragOver(e) {
+  if (!editMode || dragSrcIndex===null) return;
+  e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+  const ti = parseInt(this.dataset.ei);
+  if (ti !== dragSrcIndex) this.classList.add('drag-over');
+}
+function onDragLeave() { this.classList.remove('drag-over'); }
+function onDrop(e) {
+  if (!editMode || dragSrcIndex===null) return;
+  e.preventDefault();
+  const ti = parseInt(this.dataset.ei);
+  if (ti===dragSrcIndex) return;
+  const exes = DAYS[currentDay].exercises;
+  const moved = exes.splice(dragSrcIndex,1)[0];
+  exes.splice(ti,0,moved);
+  dragSrcIndex = null; saveState(); renderExercises();
+}
+function onDragEnd() {
+  dragSrcIndex = null;
+  document.querySelectorAll('.exercise-card').forEach(c => c.classList.remove('dragging','drag-over'));
+}
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
 loadState();
-
-// default open first exercise on each day
 DAYS.forEach(d => { if(d.exercises[0]) d.exercises[0].open = true; });
-
-// auto-select today
 const todayMap = {1:0,2:1,3:2,4:3,5:4};
 const dow = new Date().getDay();
-if (todayMap[dow] !== undefined) currentDay = todayMap[dow];
-
+if (todayMap[dow]!==undefined) currentDay = todayMap[dow];
 render();
 </script>
 </body>
