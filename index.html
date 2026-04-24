@@ -269,6 +269,42 @@
   .btn-export:hover { opacity: 0.85; }
   .btn-danger { background: transparent; border: 1px solid rgba(255,77,77,0.4); color: #ff6666; }
   .btn-danger:hover { background: rgba(255,77,77,0.1); }
+  .btn-import { background: transparent; border: 1px solid rgba(0,194,255,0.4); color: #00c2ff; }
+  .btn-import:hover { background: rgba(0,194,255,0.08); }
+
+  /* ── IMPORT PREVIEW MODAL ────────────────────────────── */
+  .import-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 400; align-items: flex-start; justify-content: center; backdrop-filter: blur(4px); overflow-y: auto; padding: 2rem 1rem; }
+  .import-overlay.show { display: flex; }
+  .import-modal { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; width: min(680px, 100%); animation: popIn 0.2s ease; margin: auto; }
+  .import-modal-header { padding: 1.5rem 1.5rem 0; border-bottom: 1px solid var(--border); }
+  .import-modal-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .import-modal-sub { font-family: 'DM Mono', monospace; font-size: 0.68rem; color: var(--muted); letter-spacing: 0.06em; line-height: 1.6; margin-bottom: 1.25rem; }
+  .import-tabs { display: flex; gap: 0; }
+  .import-tab { font-family: 'DM Mono', monospace; font-size: 0.68rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 8px 16px; border: none; background: transparent; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; }
+  .import-tab:hover { color: var(--text); }
+  .import-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .import-modal-body { padding: 1.25rem 1.5rem; max-height: 55vh; overflow-y: auto; }
+  .import-modal-body::-webkit-scrollbar { width: 4px; }
+  .import-modal-body::-webkit-scrollbar-track { background: transparent; }
+  .import-modal-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .import-day-section { margin-bottom: 1.25rem; }
+  .import-day-label { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 0.08em; color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px; }
+  .import-day-label span { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: var(--muted); letter-spacing: 0.1em; font-weight: 400; }
+  .import-ex-row { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 3px; margin-bottom: 4px; border: 1px solid transparent; }
+  .import-ex-row.new { border-color: rgba(0,194,255,0.25); background: rgba(0,194,255,0.05); }
+  .import-ex-row.existing { border-color: var(--border); background: var(--surface2); }
+  .import-ex-row.modified { border-color: rgba(232,255,59,0.25); background: rgba(232,255,59,0.04); }
+  .import-ex-check { width: 18px; height: 18px; border-radius: 2px; border: 1.5px solid var(--border); background: transparent; cursor: pointer; flex-shrink: 0; accent-color: var(--accent); }
+  .import-ex-name { flex: 1; font-family: 'Barlow Condensed', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+  .import-ex-badge { font-family: 'DM Mono', monospace; font-size: 0.58rem; padding: 2px 6px; border-radius: 2px; letter-spacing: 0.08em; text-transform: uppercase; flex-shrink: 0; }
+  .badge-new { background: rgba(0,194,255,0.12); color: #00c2ff; border: 1px solid rgba(0,194,255,0.3); }
+  .badge-existing { background: var(--surface); color: var(--muted); border: 1px solid var(--border); }
+  .badge-modified { background: rgba(232,255,59,0.1); color: var(--accent); border: 1px solid rgba(232,255,59,0.3); }
+  .import-ex-sets { font-family: 'DM Mono', monospace; font-size: 0.62rem; color: var(--muted); flex-shrink: 0; }
+  .import-modal-footer { padding: 1rem 1.5rem 1.5rem; border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .import-summary { font-family: 'DM Mono', monospace; font-size: 0.65rem; color: var(--muted); letter-spacing: 0.06em; flex: 1; }
+  .import-summary b { color: #00c2ff; }
+  .import-empty { font-family: 'DM Mono', monospace; font-size: 0.72rem; color: var(--muted); text-align: center; padding: 2rem; opacity: 0.6; }
 
   /* ── TIMER MODAL ─────────────────────────────────────── */
   .timer-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
@@ -387,6 +423,15 @@
         </div>
         <button class="btn-settings-action btn-export" onclick="exportXLSX()">⬇ Export XLSX</button>
       </div>
+      <div class="settings-card-block" style="margin-top:1rem;">
+        <div class="settings-card-title">Import from XLSX</div>
+        <div class="settings-card-desc">
+          Upload a previously exported .xlsx file to sync exercises, sets, weights and reps back into the app.<br>
+          New exercises in the file will be added. You'll get a preview before anything is applied.
+        </div>
+        <button class="btn-settings-action btn-import" onclick="document.getElementById('xlsxFileInput').click()">⬆ Import XLSX</button>
+        <input type="file" id="xlsxFileInput" accept=".xlsx,.xls" style="display:none" onchange="handleXLSXImport(this)" />
+      </div>
     </div>
 
     <div class="settings-section">
@@ -445,6 +490,23 @@
       <button class="confirm-btn confirm-yes" id="confirmYes">Yes — Reset</button>
       <button class="confirm-btn confirm-no"  id="confirmNo">No — Keep Data</button>
       <button class="confirm-btn confirm-cancel" onclick="closeConfirm()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Import Preview Modal -->
+<div class="import-overlay" id="importOverlay">
+  <div class="import-modal">
+    <div class="import-modal-header">
+      <div class="import-modal-title">Import Preview</div>
+      <div class="import-modal-sub">Review what will change. Check/uncheck exercises to include. New exercises are highlighted in blue.</div>
+      <div class="import-tabs" id="importTabs"></div>
+    </div>
+    <div class="import-modal-body" id="importModalBody"></div>
+    <div class="import-modal-footer">
+      <div class="import-summary" id="importSummary"></div>
+      <button class="confirm-btn confirm-cancel" onclick="closeImport()">Cancel</button>
+      <button class="confirm-btn confirm-no" id="importApplyBtn" onclick="applyImport()">Apply Import</button>
     </div>
   </div>
 </div>
@@ -1015,6 +1077,203 @@ function doReset(keepWeights) {
 
 function closeConfirm() { document.getElementById('confirmOverlay').classList.remove('show'); }
 document.getElementById('confirmOverlay').addEventListener('click', function(e){ if(e.target===this) closeConfirm(); });
+
+// ─── IMPORT XLSX ──────────────────────────────────────────────────────────────
+let importPreviewData = null; // { days: [ { key, label, exercises: [ { name, tag, sets, status:'new'|'existing'|'modified', selected } ] } ] }
+let importActiveDayTab = 0;
+
+function handleXLSXImport(input) {
+  const file = input.files[0];
+  if (!file) return;
+  input.value = ''; // reset so same file can be re-imported
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const wb = XLSX.read(e.target.result, { type: 'array' });
+      const preview = buildImportPreview(wb);
+      if (!preview || preview.days.length === 0) {
+        alert('No recognisable day sheets found. Make sure you are importing a BroSplit export.');
+        return;
+      }
+      importPreviewData = preview;
+      importActiveDayTab = 0;
+      renderImportModal();
+      document.getElementById('importOverlay').classList.add('show');
+    } catch(err) {
+      alert('Could not read the file. Make sure it is a valid .xlsx export from BroSplit.\n\n' + err.message);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function buildImportPreview(wb) {
+  const preview = { days: [] };
+  // Match sheets to existing days by label (sheet name), skipping Summary
+  wb.SheetNames.forEach(sheetName => {
+    if (sheetName.toLowerCase() === 'summary') return;
+    const ws = wb.Sheets[sheetName];
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+    if (rows.length < 2) return; // empty or header-only
+
+    // Find matching day by label
+    const matchDay = DAYS.find(d => d.label.toUpperCase() === sheetName.toUpperCase());
+    const dayKey   = matchDay ? matchDay.key : null;
+    const dayLabel = sheetName.toUpperCase();
+
+    // Parse exercises from rows — header: Exercise | Type | Set | Weight | Reps | Done
+    const exMap = new Map(); // name -> { tag, sets[] }
+    for (let r = 1; r < rows.length; r++) {
+      const [exName, type, setNum, weight, reps, done] = rows[r];
+      if (!exName || String(exName).trim() === '') continue;
+      const name = String(exName).trim();
+      const tag  = String(type||'').toLowerCase() === 'primary' ? 'primary' : 'secondary';
+      if (!exMap.has(name)) exMap.set(name, { tag, sets: [] });
+      exMap.get(name).sets.push({
+        w: weight !== '' ? String(weight) : '',
+        r: reps   !== '' ? String(reps)   : '',
+        done: String(done).toLowerCase() === 'yes'
+      });
+    }
+
+    const exercises = [];
+    exMap.forEach((data, name) => {
+      let status = 'new';
+      if (matchDay) {
+        const existing = matchDay.exercises.find(ex => ex.name.toLowerCase() === name.toLowerCase());
+        if (existing) {
+          // Check if any set data differs
+          const setsMatch = existing.sets.length === data.sets.length &&
+            existing.sets.every((s,i) => String(s.w) === String(data.sets[i].w) && String(s.r) === String(data.sets[i].r));
+          status = setsMatch ? 'existing' : 'modified';
+        }
+      }
+      exercises.push({ name, tag: data.tag, sets: data.sets, status, selected: status !== 'existing' });
+    });
+
+    preview.days.push({ key: dayKey, label: dayLabel, matchDay, exercises });
+  });
+  return preview;
+}
+
+function renderImportModal() {
+  const { days } = importPreviewData;
+
+  // Tabs
+  const tabBar = document.getElementById('importTabs');
+  tabBar.innerHTML = '';
+  days.forEach((d, i) => {
+    const hasChanges = d.exercises.some(ex => ex.status !== 'existing');
+    const btn = document.createElement('button');
+    btn.className = 'import-tab' + (i === importActiveDayTab ? ' active' : '');
+    btn.textContent = d.label + (hasChanges ? ' ●' : '');
+    btn.onclick = () => { importActiveDayTab = i; renderImportModal(); };
+    tabBar.appendChild(btn);
+  });
+
+  // Body
+  const body = document.getElementById('importModalBody');
+  const day = days[importActiveDayTab];
+  body.innerHTML = '';
+
+  if (day.exercises.length === 0) {
+    body.innerHTML = '<div class="import-empty">No exercises found in this sheet.</div>';
+  } else {
+    day.exercises.forEach((ex, ei) => {
+      const row = document.createElement('div');
+      row.className = `import-ex-row ${ex.status}`;
+
+      const check = document.createElement('input');
+      check.type = 'checkbox';
+      check.className = 'import-ex-check';
+      check.checked = ex.selected;
+      check.disabled = ex.status === 'existing'; // existing-unchanged auto-skip
+      check.onchange = () => { ex.selected = check.checked; updateImportSummary(); };
+
+      const name = document.createElement('div');
+      name.className = 'import-ex-name';
+      name.textContent = ex.name;
+
+      const badge = document.createElement('span');
+      badge.className = 'import-ex-badge badge-' + ex.status;
+      badge.textContent = ex.status === 'new' ? '+ New' : ex.status === 'modified' ? '~ Updated' : '✓ Same';
+
+      const sets = document.createElement('div');
+      sets.className = 'import-ex-sets';
+      sets.textContent = ex.sets.length + ' set' + (ex.sets.length !== 1 ? 's' : '');
+
+      row.appendChild(check);
+      row.appendChild(name);
+      row.appendChild(badge);
+      row.appendChild(sets);
+      body.appendChild(row);
+    });
+  }
+
+  updateImportSummary();
+}
+
+function updateImportSummary() {
+  const { days } = importPreviewData;
+  let newCount = 0, modCount = 0;
+  days.forEach(d => d.exercises.forEach(ex => {
+    if (!ex.selected) return;
+    if (ex.status === 'new') newCount++;
+    if (ex.status === 'modified') modCount++;
+  }));
+  const parts = [];
+  if (newCount)  parts.push(`<b>${newCount} new exercise${newCount!==1?'s':''}</b>`);
+  if (modCount)  parts.push(`<b>${modCount} updated</b>`);
+  if (!parts.length) parts.push('No changes selected');
+  document.getElementById('importSummary').innerHTML = 'Will apply: ' + parts.join(' · ');
+}
+
+function applyImport() {
+  const { days } = importPreviewData;
+  days.forEach(d => {
+    if (!d.matchDay) return; // sheet has no matching day — skip (we don't auto-create days)
+    const target = d.matchDay;
+    d.exercises.forEach(ex => {
+      if (!ex.selected) return;
+      const existing = target.exercises.find(e => e.name.toLowerCase() === ex.name.toLowerCase());
+      if (existing) {
+        // Update sets with imported data
+        existing.sets = ex.sets.map(s => ({ ...s }));
+        existing.tag  = ex.tag;
+      } else {
+        // Add as new exercise
+        target.exercises.push({ name: ex.name, tag: ex.tag, open: false, sets: ex.sets.map(s => ({ ...s })) });
+      }
+    });
+  });
+  saveState();
+  closeImport();
+  // Refresh current view if on day screen
+  if (currentScreen === 'day') renderDayScreen();
+  if (currentScreen === 'home') renderHome();
+  // Toast-style feedback
+  showToast('Import applied ✓');
+}
+
+function closeImport() {
+  document.getElementById('importOverlay').classList.remove('show');
+  importPreviewData = null;
+}
+document.getElementById('importOverlay').addEventListener('click', function(e){ if(e.target===this) closeImport(); });
+
+// ─── TOAST ────────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  let t = document.getElementById('toastEl');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toastEl';
+    t.style.cssText = 'position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:var(--accent);color:#000;font-family:"DM Mono",monospace;font-size:0.75rem;letter-spacing:0.1em;padding:10px 22px;border-radius:3px;z-index:999;opacity:0;transition:opacity 0.2s;pointer-events:none;white-space:nowrap;';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._tid);
+  t._tid = setTimeout(() => t.style.opacity = '0', 2200);
+}
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 loadState();
